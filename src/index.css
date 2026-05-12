@@ -7,11 +7,9 @@ html {
 }
 
 body {
-  background: #0A0F1C;
-  color: #F1F5F9;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #f5f0e8;
+  color: #1a1610;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
-#root {
-  min-height: 100vh;
-}
+#root { min-height: 100vh; }
