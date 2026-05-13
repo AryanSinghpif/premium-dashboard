@@ -1,19 +1,27 @@
+/* ── Section ── */
 .section {
   background: var(--bg);
   position: relative;
   height: 100vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
 }
 
+/* ── Progress dots ── */
 .progressDots {
   position: absolute;
-  top: 2rem;
+  top: 1.6rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 20;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  z-index: 20;
 }
 
 .dot {
@@ -21,7 +29,10 @@
   width: 8px;
   border-radius: 2px;
   background: var(--border);
-  transition: all 0.3s;
+  border: none;
+  padding: 0;
+  cursor: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .activeDot {
@@ -29,40 +40,106 @@
   background: var(--acc);
 }
 
-.scrollLabel {
+/* ── Counter top-right ── */
+.counter {
   position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
+  top: 1.6rem;
+  right: 2.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
   font-family: var(--mono);
-  font-size: 0.55rem;
+  z-index: 20;
+}
+
+.counterActive {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--acc);
+  letter-spacing: -0.02em;
+}
+
+.counterSep {
+  font-size: 0.72rem;
   color: var(--ink3);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  white-space: nowrap;
+}
+
+.counterTotal {
+  font-size: 0.72rem;
+  color: var(--ink3);
+}
+
+/* ── Stage: arrows + viewport ── */
+.stageWrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  height: 82vh;
+  padding: 0;
+  position: relative;
+}
+
+/* ── Arrow buttons ── */
+.arrowBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(26, 22, 16, 0.12);
+  background: rgba(245, 240, 232, 0.62);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 4px 16px rgba(26, 22, 16, 0.08), inset 0 1px 0 rgba(255,255,255,0.7);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  color: var(--ink2);
+  cursor: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, color 0.18s, transform 0.15s, box-shadow 0.18s;
+}
+
+.arrowBtn:hover {
+  background: rgba(245, 240, 232, 0.92);
+  color: var(--acc);
+  box-shadow: 0 6px 24px rgba(26, 22, 16, 0.14), inset 0 1px 0 rgba(255,255,255,0.9);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.arrowBtn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.arrowBtn:disabled {
+  opacity: 0.45;
   pointer-events: none;
 }
 
-/* The perspective container — cards sit inside this */
+.arrowLeft  { left:  1.2rem; }
+.arrowRight { right: 1.2rem; }
+
+/* ── Perspective viewport ── */
 .viewport {
   position: relative;
   width: 88%;
   max-width: 1080px;
-  height: 80vh;
+  height: 100%;
   margin: 0 auto;
-  top: 10vh;
   transform-style: preserve-3d;
   perspective: 1200px;
+  flex: 1;
 }
 
-/* Individual card — absolute so they stack */
+/* ── Card ── */
 .card {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: rgba(245, 240, 232, 0.88);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -71,12 +148,12 @@
   border-radius: 3px;
   transform-style: preserve-3d;
   display: grid;
-  grid-template-columns: 90px 1fr 1fr 300px;
+  grid-template-columns: 90px 1fr 1fr 280px;
   overflow: hidden;
   will-change: transform, opacity;
 }
 
-/* Column 1 — vertical number */
+/* ── Col 1 — number spine ── */
 .colNum {
   border-right: 1px solid var(--border2);
   display: flex;
@@ -87,22 +164,24 @@
 
 .cardNum {
   font-family: var(--mono);
-  font-size: 3rem;
+  font-size: 2.8rem;
   font-weight: 300;
   color: var(--acc);
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   letter-spacing: 0.04em;
   line-height: 1;
+  opacity: 0.6;
 }
 
-/* Column 2 — headline + description */
+/* ── Col 2 — headline ── */
 .colTitle {
   padding: 3rem 2.5rem;
   border-right: 1px solid var(--border2);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 1.1rem;
 }
 
 .cardTag {
@@ -112,16 +191,14 @@
   color: var(--acc);
   text-transform: uppercase;
   display: block;
-  margin-bottom: 1.2rem;
 }
 
 .cardHeadline {
   font-family: var(--sans);
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  font-size: clamp(1.6rem, 2.8vw, 2.3rem);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  margin-bottom: 2rem;
   color: var(--ink);
 }
 
@@ -135,11 +212,33 @@
   color: var(--ink2);
   line-height: 1.75;
   font-family: var(--sans);
+  max-width: 30ch;
 }
 
-/* Column 3 — steps list */
+/* Status badges */
+.statusRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 0;
+}
+
+.badgeRed { color: #B91C1C; background: rgba(185,28,28,0.09); }
+.badgeYel { color: #92400E; background: rgba(146,64,14,0.09); }
+.badgeGrn { color: #166534; background: rgba(22,101,52,0.09); }
+
+/* ── Col 3 — findings ── */
 .colSteps {
-  padding: 3rem 2.5rem;
+  padding: 2.5rem 2.5rem;
   border-right: 1px solid var(--border2);
   display: flex;
   flex-direction: column;
@@ -147,44 +246,53 @@
   gap: 0;
 }
 
+.stepsLabel {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.20em;
+  color: var(--ink3);
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+
 .step {
-  padding: 1.2rem 0;
+  padding: 1.1rem 0;
   border-bottom: 1px solid var(--border2);
   display: flex;
   gap: 1rem;
+  align-items: flex-start;
 }
 
-.step:last-child {
-  border-bottom: none;
-}
+.step:last-child { border-bottom: none; }
 
-.stepArrow {
-  color: var(--acc);
+.stepNum {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.60rem;
+  color: var(--acc);
   flex-shrink: 0;
   padding-top: 2px;
+  letter-spacing: 0.08em;
 }
 
 .stepTitle {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   letter-spacing: -0.01em;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   color: var(--ink);
   font-family: var(--sans);
 }
 
 .stepBody {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--ink2);
   line-height: 1.65;
   font-family: var(--sans);
 }
 
-/* Column 4 — label/spec card */
+/* ── Col 4 — spec card ── */
 .colCard {
-  padding: 2.5rem 2rem;
+  padding: 2rem 1.8rem;
   display: flex;
   flex-direction: column;
 }
@@ -194,17 +302,18 @@
   background: rgba(255, 255, 255, 0.60);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 20px rgba(26, 22, 16, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 20px rgba(26,22,16,0.06);
   padding: 1.8rem;
   display: flex;
   flex-direction: column;
   border-radius: 2px;
+  gap: 0;
 }
 
 .specTop {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.2rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.1rem;
   border-bottom: 1px solid rgba(26, 22, 16, 0.08);
 }
 
@@ -215,16 +324,17 @@
   color: var(--ink3);
   text-transform: uppercase;
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .specName {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 3px;
   color: var(--ink);
   font-family: var(--sans);
+  line-height: 1;
 }
 
 .specRef {
@@ -235,9 +345,7 @@
 }
 
 /* Bar rows */
-.barRow {
-  margin-bottom: 14px;
-}
+.barRow { margin-bottom: 12px; }
 
 .barHeader {
   display: flex;
@@ -259,16 +367,14 @@
 
 .barFill {
   height: 100%;
-  background: var(--acc);
   border-radius: 1px;
   width: 0;
-  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Spec footer */
+/* Footer */
 .specFooter {
   margin-top: auto;
-  padding-top: 1.2rem;
+  padding-top: 1rem;
   border-top: 1px solid rgba(26, 22, 16, 0.08);
 }
 
@@ -282,25 +388,25 @@
   color: var(--bg);
   border: none;
   width: 100%;
-  padding: 11px 16px;
+  padding: 10px 14px;
   cursor: none;
   margin-bottom: 8px;
   text-align: left;
   transition: opacity 0.15s;
 }
 
-.specBtn:hover { opacity: 0.85; }
+.specBtn:hover { opacity: 0.84; }
 
 .specNote {
   font-family: var(--mono);
-  font-size: 0.50rem;
+  font-size: 0.48rem;
   color: var(--ink3);
   letter-spacing: 0.10em;
   text-align: center;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
+/* ── Responsive ── */
+@media (max-width: 1100px) {
   .card { grid-template-columns: 90px 1fr 1fr; }
   .colCard { display: none; }
 }
@@ -308,6 +414,9 @@
 @media (max-width: 768px) {
   .card { grid-template-columns: 60px 1fr; }
   .colSteps { display: none; }
+  .arrowBtn { width: 40px; height: 40px; font-size: 0.9rem; }
+  .arrowLeft  { left: 0.4rem; }
+  .arrowRight { right: 0.4rem; }
   .cardNum { font-size: 2rem; }
   .cardHeadline { font-size: 1.5rem; }
 }
