@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ScrollCards from './components/ScrollCards';
 import './App.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -365,6 +366,9 @@ export default function App() {
           ))}
         </div>
       </div>
+
+      {/* ── GSAP 3D scroll cards ── */}
+      <ScrollCards />
 
       {/* ── Division sections — one per pillar, blackmantis product style ── */}
       <div id="divisions">
