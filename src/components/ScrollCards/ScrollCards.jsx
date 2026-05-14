@@ -3,11 +3,16 @@ import { gsap } from 'gsap';
 import { SCROLL_CARDS } from '../../data/scrollCardsData';
 import styles from './scrollCards.module.css';
 
+const STATUS_BORDER = { red: '#B91C1C', yellow: '#D97706', green: '#16A34A' };
+const STATUS_DOT    = { red: styles.dotRed, yellow: styles.dotYel, green: styles.dotGrn };
+const STATUS_BADGE  = { red: styles.badgeRed, yellow: styles.badgeYel, green: styles.badgeGrn };
+const STATUS_LABEL  = { red: 'Critical', yellow: 'Caution', green: 'On Track' };
+
 export default function ScrollCards() {
-  const viewportRef = useRef(null);
+  const viewportRef  = useRef(null);
   const [active, setActive] = useState(0);
-  const isAnimating = useRef(false);
-  const total = SCROLL_CARDS.length;
+  const isAnimating  = useRef(false);
+  const total        = SCROLL_CARDS.length;
 
   useEffect(() => {
     const cards = viewportRef.current?.querySelectorAll('[data-card]');
@@ -20,7 +25,6 @@ export default function ScrollCards() {
         scale:   i === 0 ? 1 : 0.92,
       });
     });
-    animateBars(cards[0]);
   }, []);
 
   const flip = useCallback((direction) => {
@@ -28,63 +32,33 @@ export default function ScrollCards() {
     const cards = viewportRef.current?.querySelectorAll('[data-card]');
     if (!cards) return;
 
-    const next = direction === 'next'
-      ? (active + 1) % total
-      : (active - 1 + total) % total;
-
+    const next   = direction === 'next' ? (active + 1) % total : (active - 1 + total) % total;
     const exitY  = direction === 'next' ? -90 : 90;
     const enterY = direction === 'next' ?  90 : -90;
 
     isAnimating.current = true;
-
-    // Pre-position incoming card
     gsap.set(cards[next], { rotateY: enterY, z: -200, opacity: 0, scale: 0.92 });
 
     const tl = gsap.timeline({
-      onComplete: () => {
-        isAnimating.current = false;
-        setActive(next);
-        animateBars(cards[next]);
-      },
+      onComplete: () => { isAnimating.current = false; setActive(next); },
     });
-
-    // Exit current
-    tl.to(cards[active], {
-      rotateY: exitY, z: -200, opacity: 0, scale: 0.92,
-      duration: 0.55, ease: 'power2.in',
-    });
-    // Enter next (slight overlap)
-    tl.to(cards[next], {
-      rotateY: 0, z: 0, opacity: 1, scale: 1,
-      duration: 0.55, ease: 'power2.out',
-    }, '-=0.20');
+    tl.to(cards[active], { rotateY: exitY, z: -200, opacity: 0, scale: 0.92, duration: 0.55, ease: 'power2.in' });
+    tl.to(cards[next],   { rotateY: 0,     z: 0,    opacity: 1, scale: 1,    duration: 0.55, ease: 'power2.out' }, '-=0.20');
   }, [active, total]);
 
-  function animateBars(card) {
-    if (!card) return;
-    // Reset all first
-    document.querySelectorAll('[data-bar-fill]').forEach(f => gsap.set(f, { width: 0 }));
-    // Animate this card's bars
-    card.querySelectorAll('[data-bar-fill]').forEach(fill => {
-      gsap.fromTo(fill,
-        { width: 0 },
-        { width: fill.getAttribute('data-bar-fill'), duration: 1.1, ease: 'power2.out', delay: 0.4 }
-      );
-    });
-  }
-
   return (
-    <section className={styles.section}>
+    <section
+      className={styles.section}
+      style={{ '--card-color': SCROLL_CARDS[active].color }}
+    >
       {/* Progress dots */}
       <div className={styles.progressDots}>
-        {SCROLL_CARDS.map((_, i) => (
+        {SCROLL_CARDS.map((card, i) => (
           <button
             key={i}
             className={`${styles.dot} ${i === active ? styles.activeDot : ''}`}
-            onClick={() => {
-              if (i > active) flip('next');
-              else if (i < active) flip('prev');
-            }}
+            style={i === active ? { background: SCROLL_CARDS[active].color } : {}}
+            onClick={() => { if (i > active) flip('next'); else if (i < active) flip('prev'); }}
             aria-label={`Go to card ${i + 1}`}
           />
         ))}
@@ -92,106 +66,113 @@ export default function ScrollCards() {
 
       {/* Counter */}
       <div className={styles.counter}>
-        <span className={styles.counterActive}>{String(active + 1).padStart(2, '0')}</span>
+        <span className={styles.counterActive} style={{ color: SCROLL_CARDS[active].color }}>
+          {String(active + 1).padStart(2, '0')}
+        </span>
         <span className={styles.counterSep}>/</span>
         <span className={styles.counterTotal}>{String(total).padStart(2, '0')}</span>
       </div>
 
-      {/* Cards + arrow buttons */}
       <div className={styles.stageWrap}>
+        <button className={`${styles.arrowBtn} ${styles.arrowLeft}`}
+          onClick={() => flip('prev')} aria-label="Previous card" disabled={isAnimating.current}>←</button>
 
-        {/* Prev button */}
-        <button
-          className={`${styles.arrowBtn} ${styles.arrowLeft}`}
-          onClick={() => flip('prev')}
-          aria-label="Previous card"
-          disabled={isAnimating.current}
-        >
-          ←
-        </button>
-
-        {/* Perspective viewport */}
         <div className={styles.viewport} ref={viewportRef}>
           {SCROLL_CARDS.map((card, i) => (
-            <div className={styles.card} key={i} data-card={i}>
+            <div
+              className={styles.card}
+              key={i}
+              data-card={i}
+              style={{ '--card-color': card.color }}
+            >
 
-              {/* Col 1 — vertical number */}
-              <div className={styles.colNum}>
-                <span className={styles.cardNum}>{card.number}</span>
-              </div>
+              {/* ── Top nav bar ── */}
+              <div className={styles.cardNav}>
 
-              {/* Col 2 — division info */}
-              <div className={styles.colTitle}>
-                <span className={styles.cardTag}>{card.category}</span>
-                <h2 className={styles.cardHeadline}>
-                  {card.headline} <em>{card.headlineAccent}</em>
-                </h2>
-                <p className={styles.cardDesc}>{card.description}</p>
-                <div className={styles.statusRow}>
-                  <span className={styles.badge + ' ' + styles.badgeRed}>{card.specCard.metrics[1].value} Critical</span>
-                  <span className={styles.badge + ' ' + styles.badgeYel}>{card.specCard.metrics[2].value} Caution</span>
-                  <span className={styles.badge + ' ' + styles.badgeGrn}>{card.specCard.metrics[3].value} On Track</span>
+                {/* Division identity */}
+                <div className={styles.navDivision}>
+                  <span className={styles.navNum}>#{String(i + 1).padStart(2, '0')}</span>
+                  <span className={styles.navCode}>{card.code}</span>
+                  <span className={styles.navFull}>{card.fullName}</span>
                 </div>
-              </div>
 
-              {/* Col 3 — findings */}
-              <div className={styles.colSteps}>
-                <div className={styles.stepsLabel}>KEY FINDINGS</div>
-                {card.features.map((f, fi) => (
-                  <div key={fi} className={styles.step}>
-                    <span className={styles.stepNum}>{String(fi + 1).padStart(2, '0')}</span>
-                    <div>
-                      <div className={styles.stepTitle}>{f.title}</div>
-                      <p className={styles.stepBody}>{f.body}</p>
+                {/* Programme pills */}
+                <div className={styles.navProgs}>
+                  {card.programs.map((p, pi) => (
+                    <div
+                      key={pi}
+                      className={styles.navProgItem}
+                      style={{ borderTopColor: STATUS_BORDER[p.status] }}
+                    >
+                      <span className={styles.navProgShort}>{p.short}</span>
+                      <span className={`${styles.navProgDot} ${STATUS_DOT[p.status]}`} />
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
               </div>
 
-              {/* Col 4 — spec card */}
-              <div className={styles.colCard}>
-                <div className={styles.specInner}>
-                  <div className={styles.specTop}>
-                    <span className={styles.specProd}>DIVISION SUMMARY</span>
-                    <div className={styles.specName}>{card.specCard.title}</div>
-                    <span className={styles.specRef}>{card.specCard.ref}</span>
-                  </div>
-                  {card.specCard.metrics.map((m, mi) => (
-                    <div key={mi} className={styles.barRow}>
-                      <div className={styles.barHeader}>
-                        <span className={styles.barKey}>{m.label}</span>
-                        <span className={styles.barVal}>{m.value}</span>
+              {/* ── Body: tiles + overview strip ── */}
+              <div className={styles.cardBody}>
+
+                {/* Programme tiles — 2-col grid */}
+                <div className={styles.progGrid}>
+                  {card.programs.map((p, pi) => (
+                    <div
+                      key={pi}
+                      className={styles.progTile}
+                      style={{ borderTopColor: STATUS_BORDER[p.status] }}
+                    >
+                      <div className={styles.tileHead}>
+                        <span className={styles.tileNum}>{String(pi + 1).padStart(2, '0')}</span>
+                        <span className={styles.tileName}>{p.name}</span>
                       </div>
-                      <div className={styles.barTrack}>
-                        <div
-                          className={styles.barFill}
-                          data-bar-fill={m.barWidth}
-                          style={{ background: m.accent ? 'var(--acc)' : 'rgba(26,22,16,0.20)' }}
-                        />
+                      <p className={styles.tileDesc}>{p.desc}</p>
+                      <div className={styles.tileFooter}>
+                        <span className={styles.tileMetric}>{p.metric}</span>
+                        <span className={`${styles.tileBadge} ${STATUS_BADGE[p.status]}`}>
+                          {STATUS_LABEL[p.status]}
+                        </span>
                       </div>
                     </div>
                   ))}
-                  <div className={styles.specFooter}>
-                    <button className={styles.specBtn}>{card.specCard.ctaLabel}</button>
-                    <p className={styles.specNote}>HMIS 2023–24 · NFHS-5</p>
+                </div>
+
+                {/* Right overview strip */}
+                <div className={styles.overviewStrip}>
+                  <div className={styles.stripLabel}>Overview</div>
+                  <div className={styles.stripLines}>
+                    {card.overview.map((line, li) => (
+                      <div key={li} className={styles.stripLine}>{line}</div>
+                    ))}
+                  </div>
+                  <div className={styles.stripStats}>
+                    <div className={styles.stripStatRow}>
+                      <span className={styles.sKey}>Total</span>
+                      <span className={`${styles.sVal} ${styles.sValNeu}`}>{card.stats.total}</span>
+                    </div>
+                    <div className={styles.stripStatRow}>
+                      <span className={styles.sKey}>Critical</span>
+                      <span className={`${styles.sVal} ${styles.sValRed}`}>{card.stats.critical}</span>
+                    </div>
+                    <div className={styles.stripStatRow}>
+                      <span className={styles.sKey}>Caution</span>
+                      <span className={`${styles.sVal} ${styles.sValYel}`}>{card.stats.caution}</span>
+                    </div>
+                    <div className={styles.stripStatRow}>
+                      <span className={styles.sKey}>On Track</span>
+                      <span className={`${styles.sVal} ${styles.sValGrn}`}>{card.stats.onTrack}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Next button */}
-        <button
-          className={`${styles.arrowBtn} ${styles.arrowRight}`}
-          onClick={() => flip('next')}
-          aria-label="Next card"
-          disabled={isAnimating.current}
-        >
-          →
-        </button>
-
+        <button className={`${styles.arrowBtn} ${styles.arrowRight}`}
+          onClick={() => flip('next')} aria-label="Next card" disabled={isAnimating.current}>→</button>
       </div>
     </section>
   );
